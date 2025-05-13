@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 import * as SQLite from 'expo-sqlite'
 import { useState } from 'react';
 import { Button, Text, TextInput } from 'react-native-paper'
 
 interface Usuario {
+  id?: number,
   nome: string,
   email: string,
   display?: string
@@ -50,13 +51,14 @@ async function insertUsuario(dname: string, { nome, email, display }: Usuario) {
   }
 }
 
-async function getUsuario(dname: string) {
+async function getUsuario(dname: string): Promise<Usuario[]> {
   const db = await openDatabase(dname)
   try {
-    const regs: Usuario[] = await db.getAllAsync('SELECT nome, email, display FROM usuario')
+    const regs: Usuario[] = await db.getAllAsync('SELECT id_user, nome, email, display FROM usuario')
     return regs
   } catch (e) {
     console.log(`ERRO GET: ${e}`)
+    return [{ nome: 'ERROR', email: 'ERRO' }]
   }
 }
 
@@ -64,6 +66,7 @@ export default function App() {
   const [curUserName, setCurUserName] = useState('')
   const [curUserEmail, setCurUserEmail] = useState('')
   const [curUserDisplay, setCurUserDisplay] = useState('')
+  const [allUsers, setAllUsers] = useState<Usuario[]>([])
 
   return (
     <View style={styles.container}>
@@ -87,8 +90,6 @@ export default function App() {
         mode='contained'
         onPress={async () => {
           await insertUsuario(DB, { nome: curUserName, email: curUserEmail, display: curUserDisplay })
-          const users = await getUsuario(DB)
-          console.log(users)
           setCurUserName('')
           setCurUserEmail('')
           setCurUserDisplay('')
@@ -96,6 +97,20 @@ export default function App() {
       >
         Registrar
       </Button>
+      <Button
+        mode='contained'
+        onPress={async () => {
+          const users: Usuario[] = await getUsuario(DB);
+          setAllUsers([...users])
+        }}
+      >
+        Visualizar Registros
+      </Button>
+      <FlatList 
+        data={allUsers} 
+        renderItem={user => <Text>{user.item.nome}, {user.item.email}</Text>}
+        keyExtractor={user => user.email}
+      />
     </View>
   );
 }
@@ -104,6 +119,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginBlock: 100,
+    marginInline: 50,
     gap: 10,
     backgroundColor: '#fff',
     // alignItems: 'center',
