@@ -3,6 +3,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import * as SQLite from 'expo-sqlite'
 import { useState } from 'react';
 import { Button, Text, TextInput } from 'react-native-paper'
+import User from './User';
 
 interface Usuario {
   id?: number,
@@ -73,22 +74,27 @@ export default function App() {
       <TextInput 
         mode='outlined'
         label={'Nome'}        
-        onChangeText={t => {setCurUserName(t); setCurUserDisplay(t)}}
+        value={curUserName}
+        onChangeText={t => {setCurUserName(t)}}
       />
       <TextInput 
         mode='outlined'
         label={'Email'}        
+        value={curUserEmail}
         onChangeText={t => setCurUserEmail(t)}
       />
       <TextInput 
         mode='outlined'
         label={'Nome de Exibição'}        
         placeholder={curUserName}
+        value={curUserDisplay}
         onChangeText={t => setCurUserDisplay(t)}
       />
       <Button
         mode='contained'
+        icon='account-plus'
         onPress={async () => {
+          if (curUserDisplay == '') setCurUserDisplay(curUserName)
           await insertUsuario(DB, { nome: curUserName, email: curUserEmail, display: curUserDisplay })
           setCurUserName('')
           setCurUserEmail('')
@@ -99,16 +105,22 @@ export default function App() {
       </Button>
       <Button
         mode='contained'
+        icon='account-group'
         onPress={async () => {
-          const users: Usuario[] = await getUsuario(DB);
-          setAllUsers([...users])
+          if (allUsers.length == 0) {
+            const users: Usuario[] = await getUsuario(DB);
+            setAllUsers([...users])
+          } else {
+            setAllUsers([])
+          }
         }}
       >
-        Visualizar Registros
+        {allUsers.length > 0 ? 'Esconder Registros' : 'Visualizar Registros'}
       </Button>
       <FlatList 
+        contentContainerStyle={{ gap: 10 }}
         data={allUsers} 
-        renderItem={user => <Text>{user.item.nome}, {user.item.email}</Text>}
+        renderItem={user => <User display={user.item.display} email={user.item.email} />}
         keyExtractor={user => user.email}
       />
     </View>
