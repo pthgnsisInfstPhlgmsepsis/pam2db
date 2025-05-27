@@ -6,6 +6,13 @@ interface UserInfo {
   email: string,
 }
 
+export interface Usuario {
+  id?: number,
+  nome: string,
+  email: string,
+  display?: string
+}
+
 export default function User({ display, email }: UserInfo) {
   const [chip, setChip] = useState(display)
   const dp: string = display ? display : 'NODISPLAY'
