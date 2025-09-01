@@ -4,6 +4,13 @@ import { Usuario } from './components/User'
 type Database = SQLite.SQLiteDatabase
 type RunResult = SQLite.SQLiteRunResult
 
+export type Livro = { 
+  id?: number, 
+  nome: string,
+  autor: string,
+  editora: string
+}
+
 
 export class DatabaseDB {
   private static async openDatabase(name: string): Promise<Database> {
@@ -17,6 +24,13 @@ export class DatabaseDB {
                     email varchar(50) NOT NULL,
                     display varchar(50)
                 ); 
+
+                CREATE TABLE IF NOT EXISTS livro (
+                    id_livro integer PRIMARY_KEY,
+                    nome varchar(50) NOT NULL,
+                    autor varchar(50) NOT NULL,
+                    editora varchar(50) NOT NULL
+                ); 
             `)
       console.log('BANCO ABERTO')
     } catch (e) {
@@ -24,6 +38,21 @@ export class DatabaseDB {
     }
 
     return db
+  }
+
+  public static async insertLivro(dname: string, { nome, autor, editora }: Livro) {
+    const db = await DatabaseDB.openDatabase(dname)
+    try {
+      const row: RunResult = await db.runAsync(
+        'INSERT INTO livro (nome, autor, editora) VALUES (?, ?, ?)',
+        nome,
+        autor,
+        editora
+      )
+      console.log(`Registro ${row.lastInsertRowId} inserido!`)
+    } catch (e) {
+      console.log(`ERRO INSERT: ${e}`)
+    }
   }
 
   public static async insertUsuario(dname: string, { nome, email, display }: Usuario) {
@@ -49,6 +78,17 @@ export class DatabaseDB {
     } catch (e) {
       console.log(`ERRO GET: ${e}`)
       return [{ nome: 'ERROR', email: 'ERRO' }]
+    }
+  }
+
+  public static async getLivro(dname: string): Promise<Livro[]> {
+    const db = await DatabaseDB.openDatabase(dname)
+    try {
+      const regs: Livro[] = await db.getAllAsync('SELECT id_livro, nome, autor, editora FROM livro')
+      return regs
+    } catch (e) {
+      console.log(`ERRO GET: ${e}`)
+      return [{ nome: 'ERROR', autor: 'ERRO', editora: 'ERRO' }]
     }
   }
 
