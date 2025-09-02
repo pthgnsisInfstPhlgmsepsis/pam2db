@@ -9,13 +9,11 @@ import { HomeNavigationProps } from '../types';
 
 const DB = 'banco'
 
-export default function Home() {
+export default function Home({ route, navigation }: HomeNavigationProps) {
   const [curUserName, setCurUserName] = useState('')
   const [curUserAutor, setCurUserAutor] = useState('')
   const [curUserEditora, setCurUserEditora] = useState('')
   const [allLivros, setAllLivros] = useState<Livro[]>([])
-
-  const navigation = useNavigation<HomeNavigationProps>()
 
   return (
     <View style={styles.container}>

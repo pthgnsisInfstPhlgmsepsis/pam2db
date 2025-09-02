@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { Avatar, Card, Chip, IconButton, Text } from "react-native-paper";
+import { View } from "react-native";
+import { Avatar, Button, Card, Chip, Icon, IconButton, Text, TouchableRipple } from "react-native-paper";
 
 interface LivroInfo {
     nome: string,
@@ -15,13 +16,16 @@ export default function LivroComponent({ nome, autor, editora, big }: LivroInfo)
 
     if (big) {
         return (
-            <Card mode="contained" style={{padding: 15}}>
-                <Card.Title
-                    title={titulo}
-                    subtitle={`Editora ${editora}`}
-                    left={() => <Avatar.Icon icon="book" />}
-                    leftStyle={{marginRight: 40}}
-                />
+            <Card mode={"outlined"}>
+                <Card.Content style={{flex: 1, flexDirection: 'row', gap: 5, alignItems: 'center'}}>
+                    <View>
+                        <Icon source={'book'} size={30} />
+                    </View>
+                    <View>
+                        <Text variant={'titleMedium'}>{titulo}</Text>
+                        <Text>{editora}</Text>
+                    </View>
+                </Card.Content>
             </Card>
         )
     } else {
